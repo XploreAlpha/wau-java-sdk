@@ -175,3 +175,30 @@ mvn checkstyle:check
 - **v0.9.0 "Acorn" GA**(2026-07-02)✅
 - **v1.0.0 "Phoenix" GA**(W15 2026-11-22 目标)🔲
 - 公开契约 D60 additive:0 改 / 0 删 / 0 重命名
+
+## Bot Platforms
+
+WAU SDK 通过两段责任分工对接 N 个 Bot 平台(W5 新增):
+
+| 责任段 | 仓 | 文件 | 覆盖范围 |
+|---|---|---|---|
+| **公共契约** | 本 SDK(`bot/common/`) | `Bot` + `BotsService` 抽象接口 | 5 SDK 100% 一致(per M10 N1)|
+| **C 端 SDK bot/ 子包** | 本 SDK | `bot/{telegram,discord,webhook,slack,feishu,qq,dingtalk,email}/` | 每个 SDK 自带 8 平台(W5 Q2 拍板:Java SDK 加 5 平台 bot/ 完整 SDK 端实现)|
+| **服务端 8 平台 adapter** | `wau-channel` | `internal/adapter/{slack,feishu,dingtalk,qq,email,telegram,discord,webhook}/*_real.go` | 全部 8 平台完整 4 步(per W7 2026-07-07 SDK 接通)|
+| **服务端 bot HTTP API** | `wau-edge` | `POST /v1/bots/{bot_id}/messages`(per M10 N3) | Bot → 后端路由 |
+
+**Bot Platforms 公开能力表**(2026-07-13, **W5 update 反 W4.1**):
+
+| Platform     | 本 SDK bot/ | wau-channel adapter | 状态 |
+|--------------|-------------|---------------------|------|
+| Telegram     | 🔲 | ✅ | 仅 wau-channel 完整(per W4.1 Java SDK 5 核心方法未含 bot/)|
+| Discord      | 🔲 | ✅ | 同上 |
+| Webhook      | 🔲 | ✅ | 同上 |
+| Slack        | ✅ Stage 0 | ✅ 完整 4 步(`com.slack.api:slack-api-client`)| W5 Stage 0 stub, Stage 1 待补 |
+| Feishu       | ✅ Stage 0 | ✅ 完整 4 步(`com.larksuite.oapi:oapi-sdk-java`)| W5 Stage 0 stub, Stage 1 待补 |
+| QQ           | ✅ Stage 0 | ✅ 完整 4 步(`tencent-connect/botgo`)| W5 Stage 0 stub, Stage 1 待补 |
+| DingTalk     | ✅ Stage 0 | ✅ 完整 4 步(`com.dingtalk:dingtalk-stream`)| W5 Stage 0 stub, Stage 1 待补 |
+| Email        | ✅ Stage 0 | ✅ 完整 4 步(`jakarta.mail:jakarta.mail-api`)| W5 Stage 0 stub, Stage 1 待补 |
+
+> **W5 Q2 拍板**(per 2026-07-13):wau-java-sdk 加 5 平台 bot/ 完整 SDK 端实现(Slack/Feishu/QQ/DingTalk/Email);Telegram/Discord/Webhook 3 平台 bot/ 推到 v1.3.0 bump(per SDK v1.3.0+v1.3.1+v1.3.2 deadline 2026-10-24 W10 末)。
+
