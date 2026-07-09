@@ -194,11 +194,13 @@ WAU SDK 通过两段责任分工对接 N 个 Bot 平台(W5 新增):
 | Telegram     | 🔲 | ✅ | 仅 wau-channel 完整(per W4.1 Java SDK 5 核心方法未含 bot/)|
 | Discord      | 🔲 | ✅ | 同上 |
 | Webhook      | 🔲 | ✅ | 同上 |
-| Slack        | ✅ Stage 0 | ✅ 完整 4 步(`com.slack.api:slack-api-client`)| W5 Stage 0 stub, Stage 1 待补 |
-| Feishu       | ✅ Stage 0 | ✅ 完整 4 步(`com.larksuite.oapi:oapi-sdk-java`)| W5 Stage 0 stub, Stage 1 待补 |
-| QQ           | ✅ Stage 0 | ✅ 完整 4 步(`tencent-connect/botgo`)| W5 Stage 0 stub, Stage 1 待补 |
-| DingTalk     | ✅ Stage 0 | ✅ 完整 4 步(`com.dingtalk:dingtalk-stream`)| W5 Stage 0 stub, Stage 1 待补 |
-| Email        | ✅ Stage 0 | ✅ 完整 4 步(`jakarta.mail:jakarta.mail-api`)| W5 Stage 0 stub, Stage 1 待补 |
+| Slack        | ✅ Stage 1 native | ✅ 完整 4 步(`com.slack.api:slack-api-client` v1+ SocketModeApp)| W6.2 closure: SocketModeApp 集成 (~267 LoC) |
+| Feishu       | ✅ Stage 1 native | ✅ 完整 4 步(`com.larksuite.oapi:oapi-sdk-java` v1+)| W6.2 closure: Client + EventDispatcher 集成 (~321 LoC) |
+| QQ           | ✅ Stage 1 native | ✅ 完整 4 步(`OkHttp` fallback)| W6.2 closure: 自实现 HTTP client (~365 LoC) |
+| DingTalk     | ✅ Stage 1 native | ✅ 完整 4 步(`com.dingtalk.open:dingtalk-stream-sdk-java` v1+)| W6.2 closure: OpenDingTalkStreamClient 长连接 (~247 LoC) |
+| Email        | ✅ Stage 1 native | ✅ 完整 4 步(`com.sun.mail:jakarta.mail` v2+)| W6.2 closure: SMTP + IMAP (~353 LoC) |
 
 > **W5 Q2 拍板**(per 2026-07-13):wau-java-sdk 加 5 平台 bot/ 完整 SDK 端实现(Slack/Feishu/QQ/DingTalk/Email);Telegram/Discord/Webhook 3 平台 bot/ 推到 v1.3.0 bump(per SDK v1.3.0+v1.3.1+v1.3.2 deadline 2026-10-24 W10 末)。
+>
+> **W6.2 closure (2026-07-09)**: 5 平台 (Slack/Feishu/QQ/DingTalk/Email) Stage 0 stub → Stage 1 native SDK integration 100% 收口(per M10 N1 + D13 + D78 + D80 公共契约)。W6.0 同步补 Account + BotBuilder + BotsService DTO 反转(per D13 5 SDK byte-equal 公共契约)。
 
