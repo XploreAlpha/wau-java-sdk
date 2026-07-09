@@ -130,3 +130,48 @@ These are planned upgrades; this preview is sufficient for v1.0.0 commercial use
 ### License
 
 Apache-2.0
+
+---
+
+## Quickstart(5 节标准节 · W3.5)
+
+> **本节由 W3.5 README 标准化自动 append,2026-07-13**。D60 additive:0 改 README 老内容。
+
+### Install
+
+```xml
+<!-- Maven -->
+<dependency>
+    <groupId>network.wau</groupId>
+    <artifactId>wau-java-sdk</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+### Quickstart(5 分钟跑通)
+
+```bash
+# 1. 跑测试(maven)
+mvn test
+
+# 2. 跑 self-test(若有)
+mvn exec:java -Dexec.mainClass="network.wau.Main"
+
+# 3. 跑 lint
+mvn checkstyle:check
+```
+
+### Docs / 关联链接
+
+- [CHANGELOG.md](./CHANGELOG.md) — 版本变更历史
+- [RELEASING.md](./RELEASING.md) — 发版流程(W3.4 新增)
+- [LICENSE](./LICENSE) — Apache 2.0
+- [GitHub Actions CI](.github/workflows/ci.yml) — CI 流水线
+- [WAU 仓列表](https://github.com/XploreAlpha) — 跨仓导航
+- [WAU Whitepaper](https://github.com/XploreAlpha/WAU-core-kernel) — 项目治理
+
+### Status
+
+- **v0.9.0 "Acorn" GA**(2026-07-02)✅
+- **v1.0.0 "Phoenix" GA**(W15 2026-11-22 目标)🔲
+- 公开契约 D60 additive:0 改 / 0 删 / 0 重命名
