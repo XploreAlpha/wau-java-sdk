@@ -121,6 +121,29 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- W6.1 (2026-07-09) Stage 1 dep 追加 — 5 平台 SDK native integration -->
+        <dependency>
+            <groupId>com.slack.api</groupId>
+            <artifactId>slack-api-client</artifactId>
+            <version>1.40.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.larksuite.oapi</groupId>
+            <artifactId>oapi-sdk-java</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dingtalk.open</groupId>
+            <artifactId>dingtalk-stream-sdk-java</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <!-- QQ: 官方 Java SDK 暂缺成熟 lib, 推 W7+ 评估 (fallback 用 OkHttp 自实现) -->
+
         <!-- ============== Test scope ============== -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
