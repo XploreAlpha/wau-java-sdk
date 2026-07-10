@@ -5,6 +5,32 @@ All notable changes to **wau-java-sdk** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — v1.3.0 "bot_uuid field add (W2.1, 2026-07-10)"
+
+### Added
+
+- `botUuid` (UUID v4, server-assigned) field added to `Account` + `BotsService.RegisterRequest` records
+  - Jackson `@JsonProperty("bot_uuid")` 双向序列化(`account_id`/`tenant_id`/`bot_id`/`bot_uuid`/`public_bot_id`/`owner_user_id`/`channel_type`/`channel_config_id`/`created_at`/`updated_at` 10 字段顺序对齐 wau-go-sdk D13)
+- 新 `bot/registry/BotsClient.java` HTTP client 实现 5 method (`register` / `get` / `update` / `list` / `delete`)
+- 新 3 exception 类对齐 v1.3.0 bot 注册错误码:
+  - `BotNotFoundException`(status 404)
+  - `BotAlreadyExistsException`(status 409)
+  - `BotInvalidArgumentException`(status 400)
+- 新 `BotsClientTest.java` 10 单元测试(5 method × 2 case)用 `HttpTransport.Sender` mock
+
+### Compatibility (D60 additive)
+
+- 0 改老 9 字段(顺序保持一致)
+- 老 caller `newAccount(tenant, bot, owner, ch, cfg)` 不传 `botUuid` → 服务端 Register 时回填,跟 4 SDK 行为一致
+- 老 SDK v1.2.0 不写 `bot_uuid` 字段 → server 用 `bot_id` slug 寻址并自动生成(per D80 兼容降级)
+
+### Verified (待 user CI 跑)
+
+- Sandbox 无 `mvn` binary,plan 落地靠 `grep` 验证:`botUuid`/`bot_uuid`/`BotUUID` 在 main/ 共 8 命中
+- 完整 `mvn test -Dtest=BotsClientTest` 留 user 本地或 CI 跑
+
+---
+
 ## [0.1.0-preview] — 2026-07-08
 
 ### Added

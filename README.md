@@ -119,13 +119,18 @@ These are planned upgrades; this preview is sufficient for v1.0.0 commercial use
 
 ### 跟 4 SDK 同步窗口
 
-| 时间 | SDK 版本 | Java SDK 改动 |
-|---|---|---|
-| 2026-09-20 | v1.3.0 | + `bot_id` + `owner_user_id` 2 字段(+50 行)|
-| 2026-10-24 | v1.3.1 | + `register_agent` 1 方法(+30 行)|
-| 2026-11-14 | v1.3.2(5 SDK 统一)| (本期不含推 v1.x)|
+| 时间 | SDK 版本 | Java SDK 改动 | 状态 |
+|---|---|---|---|
+| **2026-07-10**(W2.1 已提前 ~10 周) | **v1.3.0** | **+ `botUuid` 1 字段(+ BotsClient + 3 exception + 10 test,~236 行)** | **✅ DONE** (per D78/D79/D80 拍板 7-09) |
+| 2026-09-20 | v1.3.1 | + `register_agent` 1 方法(+30 行)| ⏳ 计划 |
+| 2026-11-14 | v1.3.2(5 SDK 统一)| (本期不含推 v1.x)| ⏳ 计划 |
 
-**总同步成本:+80 行 / 3 个 bump** ✅ per D63
+**总同步成本:已完成 236 行 v1.3.0(7-10 提前),后续 ~80 行 / 2 个 bump** ✅ per D63
+
+> **W2.1 提前落地 (2026-07-10)**:
+> - 5 SDK v1.3.0 同步缺口修复:Java SDK 加 `botUuid` (UUID v4 server-assigned, D78 拍板),4 SDK 已 7-09 bump v1.3.0
+> - 新 `BotsClient` 5 method 实现 + 3 exception class + 10 单元测试
+> - commit `awaits push`(per feedback-cli-cant-push-git),push manifest 见 `WAU-develop/develop-log/kernel/v1.0.0/stage2/2026-07-10-W2.1-push-manifest.sh`(用户手动 push 后给路径)
 
 ### License
 

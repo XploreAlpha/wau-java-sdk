@@ -50,21 +50,26 @@ public interface BotsService {
     /**
      * 注册 bot 请求(per W6 DTO 对齐 Go 风格,2026-07-09)。
      *
+     * <p>v1.3.0 W2.1 (2026-07-10,D78):加 botUuid(可选,server-assigned,
+     * 不传 = 老 SDK v1.2.0 兼容路径,server 自动从 BotID slug 寻址并生成)。
+     *
      * <p>对应 wau-go-sdk/bot/common/account.go RegisterBotRequest:
      * <pre>
      * TenantID        string `json:"tenant_id"`
      * BotID           string `json:"bot_id"`
+     * BotUUID         string `json:"bot_uuid,omitempty"`
      * OwnerUserID     string `json:"owner_user_id"`
      * ChannelType     string `json:"channel_type"`
      * ChannelConfigID string `json:"channel_config_id"`
      * </pre>
      */
     record RegisterRequest(
-            String tenantId,
-            String botId,
-            String ownerUserId,
-            String channelType,
-            String channelConfigId
+            @com.fasterxml.jackson.annotation.JsonProperty("tenant_id") String tenantId,
+            @com.fasterxml.jackson.annotation.JsonProperty("bot_id") String botId,
+            @com.fasterxml.jackson.annotation.JsonProperty("bot_uuid") String botUuid,
+            @com.fasterxml.jackson.annotation.JsonProperty("owner_user_id") String ownerUserId,
+            @com.fasterxml.jackson.annotation.JsonProperty("channel_type") String channelType,
+            @com.fasterxml.jackson.annotation.JsonProperty("channel_config_id") String channelConfigId
     ) {}
 
     /**
