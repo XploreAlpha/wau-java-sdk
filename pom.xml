@@ -163,6 +163,13 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- L5 包管理器 mock web server (per D72/D73/D74 L5 client test, 2026-07-10) -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>${okhttp.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <!-- ============== Build ============== -->

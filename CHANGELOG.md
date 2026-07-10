@@ -31,6 +31,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Unreleased] — v1.3.3 "⭐L5 包管理器 client 雏形 (A3 prep 2026-07-10, per D72/D73/D74)"
+
+### Added
+
+- 新 `l5/L5Service.java` (~470 LoC):**5 L5 核心方法**对齐 wau-go-sdk L5Service(per D13):
+  - `install(InstallRequest)`     → POST /v1/l5/install
+  - `uninstall(UninstallRequest)` → POST /v1/l5/uninstall
+  - `update(UpdateRequest)`       → POST /v1/l5/update
+  - `search(SearchRequest)`       → POST /v1/l5/search
+  - `login(LoginRequest)`         → POST /v1/l5/login
+- 11 个 DTO class(`InstallRequest`/`InstallResponse`/`UninstallRequest`/`UninstallResponse`/`UpdateRequest`/`UpdateResponse`/`SearchRequest`/`SearchHit`/`SearchResponse`/`LoginRequest`/`LoginResponse`)— Jackson `@JsonProperty("snake_case")` 对齐 5 SDK 协议
+- `WauClient.l5()` getter — D60 additive,0 改老 5 核心方法 + 0 改 WauConfig
+- 新 `l5/L5ServiceTest.java` 5 单测(MockWebServer,5 端点 + 错误码 + D73 软删 + 401 AuthException + 409 WauException)
+- `pom.xml` 加 `com.squareup.okhttp3:mockwebserver` test scope(per D72/D74 L5 测试基建)
+
+### Compatibility (D60 additive)
+
+- 0 改老 `WauClient` 5 核心方法(`sendMessage`/`registerBot`/`getAgent`/`sampleLLM`/`recordCost`)
+- 0 改老 `WauConfig` + 老 `Account` + 老 `BotsService` 字段
+- 老 caller 拿到 WauClient 后想用 L5,只需 `client.l5().install(...)`(lazy init,L5Service 没引到就不创建)
+- v0.1.0-preview 老 caller 不知道 `l5()` getter → 编译向后兼容
+
+### Verified (待 user CI 跑,本沙箱无 mvn)
+
+- `grep -rn "l5.Service\|l5.Install\|l5.Search" /home/inamoto888/project/wau-java-sdk/src/main/java/io/wau/sdk/l5/`
+  期望:5 endpoint + 11 DTO 命名一致
+- 完整 `mvn test -Dtest=L5ServiceTest` 留 user 本地或 CI 跑
+
+### Reference
+
+- D72 A 拍板(wau-toolkit v2.0 OS-level, 仓数 +0):[stage1/01-D66-D74-9-decisions-summary#七](https://github.com/wau-network/WAU-develop/blob/main/develop-log/kernel/v1.0.0/stage1/01-D66-D74-9-decisions-summary.md)
+- D74 A 拍板(install 协议 = gRPC InstallAgent):[stage1/01-D66-D74-9-decisions-summary#九](https://github.com/wau-network/WAU-develop/blob/main/develop-log/kernel/v1.0.0/stage1/01-D66-D74-9-decisions-summary.md)
+- wau-go-sdk L5Service 参考:`wau-go-sdk/l5.go`(跟 Go SDK snake_case 协议对齐)
+
+---
+
 ## [0.1.0-preview] — 2026-07-08
 
 ### Added

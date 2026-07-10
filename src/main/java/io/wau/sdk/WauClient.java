@@ -53,6 +53,39 @@ public final class WauClient {
     public HttpTransport http() { return http; }
 
     // ============================================================
+    // ⭐L5 包管理器(per D72/D73/D74,2026-07-10,v1.3.3 L5 deadline 提前)
+    //   - 5 方法对齐 wau-go-sdk L5Service
+    //   - 通过 l5() getter 暴露,避免单仓改动面扩散
+    // ============================================================
+
+    /**
+     * L5 包管理器 client(per D72 wau-toolkit v2.0 OS-level install / uninstall / update / search / login)。
+     *
+     * <p>例:
+     * <pre>{@code
+     *   InstallResponse r = client.l5().install(
+     *       new InstallRequest("alice", "weather-agent", "1.2.3"));
+     *   System.out.println("installed agent_id=" + r.getAgentId());
+     * }</pre>
+     *
+     * <p>5 SDK 一致:与 wau-go-sdk / wau-python-sdk / wau-typescript-sdk / wau-rust-sdk
+     * 同名方法 + snake_case JSON 协议(per D13)。
+     *
+     * <p>D60 additive:0 改老 5 核心方法 + 0 改 WauConfig / WauClient 老字段;
+     * 仅新加 l5() getter + L5Service constructor injection。
+     *
+     * @since 0.2.0-preview (v1.3.3 L5 deadline 提前, 2026-07-10)
+     */
+    public io.wau.sdk.l5.L5Service l5() {
+        if (l5 == null) {
+            l5 = new io.wau.sdk.l5.L5Service(cfg, http);
+        }
+        return l5;
+    }
+
+    private io.wau.sdk.l5.L5Service l5;
+
+    // ============================================================
     // 1. sendMessage — M5 八平台下游消费
     // ============================================================
 
