@@ -88,6 +88,12 @@
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
         </dependency>
+        <!-- SSE streaming (per D89.A.9 W5+ stream_message / subscribe_to_task MCP client) -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp-sse</artifactId>
+            <version>${okhttp.version}</version>
+        </dependency>
 
         <!-- JWT verify (D79 三向校验) -->
         <dependency>
