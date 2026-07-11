@@ -86,6 +86,39 @@ public final class WauClient {
     private io.wau.sdk.l5.L5Service l5;
 
     // ============================================================
+    // UCP client(per D88.9,2026-07-11 v1.3.3 UCP deadline 提前)
+    //   - 11 commerce tool wrapper(per [[process/2026-07-11-W3-UCP-client-SDK-design]] §三)
+    //   - 通过 ucp() getter 暴露,避免单仓改动面扩散
+    // ============================================================
+
+    /**
+     * UCP commerce client(per D88 UCP server protocol + 5 SDK UCP client v1.3.3)。
+     *
+     * <p>例:
+     * <pre>{@code
+     *   Dto.Product p = client.ucp().getProduct("p-1");
+     *   Dto.Cart cart = client.ucp().addToCart("p-1", 2);
+     * }</pre>
+     *
+     * <p>5 SDK 一致:与 wau-go-sdk / wau-python-sdk / wau-typescript-sdk / wau-rust-sdk
+     * 同名方法 + snake_case JSON 协议(per D13)。
+     *
+     * <p>D60 additive:0 改老 5 核心方法 + 0 改 WauConfig / WauClient 老字段;
+     * 仅新加 ucp() getter + UCPClient constructor injection。
+     */
+    public io.wau.sdk.ucp.UCPClient ucp() {
+        if (ucp == null) {
+            ucp = new io.wau.sdk.ucp.UCPClient(
+                    cfg.wauEdgeUrl(),
+                    http,
+                    new io.wau.sdk.ucp.UcpAuth(cfg.botToken(), null));
+        }
+        return ucp;
+    }
+
+    private io.wau.sdk.ucp.UCPClient ucp;
+
+    // ============================================================
     // 1. sendMessage — M5 八平台下游消费
     // ============================================================
 

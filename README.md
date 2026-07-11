@@ -122,8 +122,50 @@ These are planned upgrades; this preview is sufficient for v1.0.0 commercial use
 | 时间 | SDK 版本 | Java SDK 改动 | 状态 |
 |---|---|---|---|
 | **2026-07-10**(W2.1 已提前 ~10 周) | **v1.3.0** | **+ `botUuid` 1 字段(+ BotsClient + 3 exception + 10 test,~236 行)** | **✅ DONE** (per D78/D79/D80 拍板 7-09) |
+| 2026-07-11(W2 prep buffer Day 4,D88.9 提前 W6 ~9 周) | **v1.3.3** | **+ UCP commerce client(11 tool + 8 DTO + JSON-RPC 2.0 + ~22 test,~1180 行)** | **✅ DONE** (per D88 + [[process/2026-07-11-W3-UCP-client-SDK-design]] §三 §四 §八) |
 | 2026-09-20 | v1.3.1 | + `register_agent` 1 方法(+30 行)| ⏳ 计划 |
 | 2026-11-14 | v1.3.2(5 SDK 统一)| (本期不含推 v1.x)| ⏳ 计划 |
+
+### v1.3.3 新增:UCP 客户端(per D88,2026-07-11 W2 prep buffer Day 4)
+
+5 SDK 同步落地 UCP(Universal Commerce Protocol),wau-java-sdk 通过 `WauClient.ucp()` getter 暴露:
+
+```java
+import io.wau.sdk.ucp.Dto;
+import io.wau.sdk.ucp.UcpException;
+
+try {
+    Dto.ListProductsResult products = client.ucp().listProducts(null);
+    Dto.Product p = client.ucp().getProduct("p-1");
+    Dto.Cart cart = client.ucp().addToCart("p-1", 2);
+
+    // W3 stub 路径:create_checkout_session + confirm_payment 走
+    // kernel ErrNotImplemented → SDK 抛 UcpException.NotImplemented("W5 Stripe 集成中 ...")
+    Dto.CheckoutSession session = client.ucp().createCheckoutSession("cart-1");
+} catch (UcpException.NotImplemented e) {
+    // W3 stub period: kernel Stripe 集成待 W5+ 落地
+    System.out.println(e.getMessage());
+} catch (UcpException.RpcError e) {
+    // 业务错误:product_not_found (-32101) / payment_failed (-32103) ...
+    System.err.println("UCP RPC error code=" + e.code() + ": " + e.getMessage());
+}
+```
+
+**11 commerce tool**(per `ucp/Tools.java`):
+
+| # | Tool | HTTP/envelope | DTO |
+|---|---|---|---|
+| 1 | `list_products(filter)` | POST /ucp tools/call | `Dto.ListProductsResult` |
+| 2 | `get_product(productId)` | 同上 | `Dto.Product` |
+| 3 | `search_products(query, limit)` | 同上 | `Dto.SearchProductsResult` |
+| 4 | `add_to_cart(productId, qty)` | 同上 | `Dto.Cart` |
+| 5 | `get_cart(cartId)` | 同上 | `Dto.Cart` |
+| 6 | `remove_from_cart(cartId, lineItemId)` | 同上 | `Dto.Cart` |
+| 7 | `create_checkout_session(cartId)` | 同上,W3 stub | `Dto.CheckoutSession` |
+| 8 | `confirm_payment(sessionId)` | 同上,W3 stub | `Dto.PaymentConfirmation` |
+| 9 | `get_order(orderId)` | 同上 | `Dto.Order` |
+| 10 | `list_orders(userId, filter)` | 同上 | `Dto.ListOrdersResult` |
+| 11 | `cancel_order(orderId)` | 同上 | `Dto.CancelOrderResult` |
 
 **总同步成本:已完成 236 行 v1.3.0(7-10 提前),后续 ~80 行 / 2 个 bump** ✅ per D63
 
@@ -131,6 +173,12 @@ These are planned upgrades; this preview is sufficient for v1.0.0 commercial use
 > - 5 SDK v1.3.0 同步缺口修复:Java SDK 加 `botUuid` (UUID v4 server-assigned, D78 拍板),4 SDK 已 7-09 bump v1.3.0
 > - 新 `BotsClient` 5 method 实现 + 3 exception class + 10 单元测试
 > - commit `awaits push`(per feedback-cli-cant-push-git),push manifest 见 `WAU-develop/develop-log/kernel/v1.0.0/stage2/2026-07-10-W2.1-push-manifest.sh`(用户手动 push 后给路径)
+>
+> **W2 prep buffer Day 4 (2026-07-11) D88.9 提前落地**:
+> - 5 SDK UCP client v1.3.3 同步完成(go 7-11 + python 7-11 + typescript 7-11 + rust 7-11 + java **本 commit**)
+> - 新 `ucp/` 包 7 文件 + 1 test(~1180 行):11 commerce tool + 8 DTO + JSON-RPC 2.0 dispatcher
+> - W3 stub:`create_checkout_session` + `confirm_payment` → `UcpException.NotImplemented("W5 Stripe 集成中")` friendly
+> - D60 additive:0 改老 WauClient 5 核心方法 + 0 改 l5() getter
 
 ### License
 

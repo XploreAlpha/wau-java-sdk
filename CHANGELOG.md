@@ -5,6 +5,50 @@ All notable changes to **wau-java-sdk** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased] — v1.3.3 "UCP commerce client (D88.9, 2026-07-11, per W3 prep Day 4)"
+
+### Added
+
+- 新 submodule `src/main/java/io/wau/sdk/ucp/`(独立 package,D60 additive)+ `src/test/java/io/wau/sdk/ucp/`,含 7 源文件 + 1 测试文件 + 1 package-info:
+  - `Tools.java` — 11 `TOOL_*` String 常量(`TOOL_LIST_PRODUCTS` ... `TOOL_CANCEL_ORDER`)+ `ALL_TOOL_NAMES` List
+  - `Stripe.java` — `isStripePath(toolName)` Stripe 路径 helper + 4 `PAYMENT_STATUS_*` 常量(`SUCCEEDED` / `FAILED` / `PROCESSING` / `PENDING`)
+  - `UcpAuth.java` — `UcpAuth` immutable record(bearerToken + tenantId)+ `apply(headers)` header 注入 + `setBearerToken` / `setTenantId` 静态 helper + `AUTH_HEADER_NAME` / `AUTH_SCHEME_PREFIX` / `DEFAULT_TENANT_HEADER_NAME` 常量
+  - `UcpException.java` — root 异常类(extends `WauException`)+ 4 inner:`Config`(本地校验) / `NotImplemented`(W3 stub 友好) / `RpcError`(JSON-RPC error envelope code+message+data) / `Malformed`(envelope 缺 result/error)+ 内嵌 `RPCError` DTO + 5 spec code(`-32700/-32600/-32601/-32602/-32603`)+ 5 UCP code(`-32101/-32102/-32103/-32104/-32105`)+ `isNotFound(err)` / `isStripeError(err)` / `wrapW3Stub(rpcErr)` 静态 helpers
+  - `Dto.java` — 8 commerce DTO(`Product` / `Cart` + `CartLineItem` / `CheckoutSession` / `PaymentConfirmation` / `Order` + `ListOrdersFilter`+`ListOrdersResult` / `CancelOrderResult`)+ 3 过滤/结果 DTO(`ListProductsFilter` + `ListProductsResult` + `SearchProductsResult`)
+  - `UCPClient.java` — `UCPClient` final class(`AtomicLong` ID counter + Jackson `ObjectMapper` + 复用 `HttpTransport`)+ `UCPClient` 双 ctor(简化版默认 + 完整 ctor 注入 endpoint/userAgent)+ 11 typed wrapper async-style method(`listProducts` / `getProduct` / `searchProducts` / `addToCart` / `getCart` / `removeFromCart` / `createCheckoutSession` [W3 stub catch] / `confirmPayment` [W3 stub catch] / `getOrder` / `listOrders` / `cancelOrder`)+ private `callTool<T>` JSON-RPC dispatcher + `unwrapEnvelope` 解码 result/error
+  - `package-info.java` — UCP module doc
+- `WauClient.ucp()` getter(D60 additive, 跟 `l5()` getter pattern 一致,lazy init)
+- 8 commerce DTO 含 `tenant_id` 字段(per D65 multi-tenant)
+- 11 `TOOL_*` 字符串常量 + `ALL_TOOL_NAMES` List(per design doc §三)
+- 5 spec + 5 UCP error code 常量(per design doc §四)
+- `UcpAuth.apply(headers)` + `setBearerToken` / `setTenantId`(per D78/D79/D80 OAuth bearer + D65 tenant 隔离)+ 静态 helper
+- `Stripe.isStripePath(tool_name)` Stripe 路径 helper(per D88.8)
+- 4 `PAYMENT_STATUS_*` 常量
+- ~22 unit tests(`src/test/java/io/wau/sdk/ucp/UCPClientTest.java`,用 `HttpTransport.Sender` mock — pattern 镜像 `BotsClientTest.CapturingSender`,无 mockwebserver 起服,镜像 wau-go-sdk / wau-python-sdk / wau-typescript-sdk / wau-rust-sdk 4 SDK UCP 测试 style)
+
+### Compatibility (D60 additive)
+
+- 0 改老 SDK(`WauClient` 5 核心方法 `sendMessage` / `registerBot` / `getAgent` / `sampleLLM` / `recordCost` 全部 0 触碰)
+- 0 改老 `WauConfig` + 老 `l5()` getter(D60 additive,纯 ucp getter append)
+- 走 OkHttp + Jackson(复用 `HttpTransport` + `Sender` mock pattern)— 跟 `L5Service` / `BotsClient` 同 pattern
+- W3 stub:`create_checkout_session` + `confirm_payment` 走 kernel `INTERNAL` error(RPCError code=-32603, message 含 "W5 Stripe")→ SDK 自动 wrap `UcpException.NotImplemented("W5 Stripe 集成中 ...")`
+- Stripe SDK 0 直接依赖(等 kernel `internal/protocol/ucp/ucp_stripe.go` 落地 W5+)
+
+### Reference
+
+- D88 拍板(UCP server):[stage2/2026-07-10-D86-D87-D88-protocol-gateway-decision](https://github.com/wau-network/WAU-develop/blob/main/develop-log/kernel/v1.0.0/stage2/2026-07-10-D86-D87-D88-protocol-gateway-decision.md)
+- 5 SDK UCP client 详设:[process/2026-07-11-W3-UCP-client-SDK-design](https://github.com/wau-network/WAU-develop/blob/main/develop-log/kernel/v1.0.0/process/2026-07-11-W3-UCP-client-SDK-design.md)
+- UCP Stripe design:[process/2026-07-11-W3-UCP-Stripe-Checkout-design](https://github.com/wau-network/WAU-develop/blob/main/develop-log/kernel/v1.0.0/process/2026-07-11-W3-UCP-Stripe-Checkout-design.md)
+- 兄弟:wau-go-sdk v1.3.3 `ucpclient/` 已落地 (D88.5 commit `d8a600f`, 28 测试);wau-python-sdk v1.3.3 `ucp_*.py` 已落地 (D88.6 commit `43c2e08`, 25 测试);wau-typescript-sdk v1.3.3 `src/ucp/` 已落地 (D88.7 commit `2765c1f`, 29 测试);wau-rust-sdk v1.3.3 `src/ucp/` 已落地 (D88.8 commit `de500c5`, 27 测试);本 module D88.9 同步实跑
+- benny 迁移澄清(2026-07-11 user 拍板):kernel UCP 是通用 commerce 垂直协议层,benny 保持独立 demo plugin
+
+### Verified (待 user CI 跑,本沙箱无 JDK)
+
+- `grep -rn "UCPClient\|UcpAuth\|UcpException" /home/inamoto888/project/wau-java-sdk/src/main/java/io/wau/sdk/ucp/` 期望 7 源文件命名一致
+- 完整 `mvn test -Dtest=UCPClientTest` 留 user 本地或 CI 跑
+
+---
+
 ## [Unreleased] — v1.3.0 "bot_uuid field add (W2.1, 2026-07-10)"
 
 ### Added
