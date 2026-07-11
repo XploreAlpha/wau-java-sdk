@@ -119,6 +119,40 @@ public final class WauClient {
     private io.wau.sdk.ucp.UCPClient ucp;
 
     // ============================================================
+    // MCP client(per D87.9,2026-07-11 v1.3.2 MCP client 实装)
+    //   - 8 sync MCP tool wrapper(per [[process/2026-07-10-W3-MCP-client-SDK-design]] §三)
+    //   - 通过 mcp() getter 暴露,避免单仓改动面扩散
+    //   - 2 SSE streaming tool deferred to W5+
+    // ============================================================
+
+    /**
+     * MCP client(per D87 kernel MCP server + 5 SDK MCP client v1.3.2)。
+     *
+     * <p>例:
+     * <pre>{@code
+     *   Dto.AgentCard card = client.mcp().parseAgentCard("{\"name\":\"Fox\"}");
+     *   Dto.Task task = client.mcp().sendMessage("fox-agent", Dto.Message.user("Hi"));
+     * }</pre>
+     *
+     * <p>5 SDK 一致:与 wau-go-sdk / wau-python-sdk / wau-typescript-sdk / wau-rust-sdk
+     * 同名方法 + snake_case JSON 协议(per D13)。
+     *
+     * <p>D60 additive:0 改老 5 核心方法 + 0 改 WauConfig / WauClient 老字段;
+     * 仅新加 mcp() getter + MCPClient constructor injection。
+     */
+    public io.wau.sdk.mcp.MCPClient mcp() {
+        if (mcp == null) {
+            mcp = new io.wau.sdk.mcp.MCPClient(
+                    cfg.wauEdgeUrl(),
+                    cfg.botToken(),
+                    http);
+        }
+        return mcp;
+    }
+
+    private io.wau.sdk.mcp.MCPClient mcp;
+
+    // ============================================================
     // 1. sendMessage — M5 八平台下游消费
     // ============================================================
 
