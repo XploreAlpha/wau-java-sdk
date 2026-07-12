@@ -5,6 +5,13 @@ All notable changes to **wau-java-sdk** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## Wire Format Reference (added 2026-07-11 per D93 SOP)
+
+This SDK is **canonical-compliant** with [WAU-protocol-spec v1.0.0](https://github.com/youhaoxi/WAU-protocol-spec).
+JSON schemas for `a2a-message` / `afp-send` / `ap2-mandate` / `netbird-config` / `ucp-checkout` are reference;
+Java record/class field names (camelCase in JSON via Jackson, PascalCase in Java) may differ from schema `properties` keys,
+but the **JSON-RPC envelope + wire format MUST match**.
+
 ## [Unreleased] — v1.3.3 "UCP commerce client (D88.9, 2026-07-11, per W3 prep Day 4)"
 
 ### Added
