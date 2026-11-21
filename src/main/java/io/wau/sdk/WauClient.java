@@ -228,6 +228,41 @@ public final class WauClient {
     }
 
     // ============================================================
+    // registerAgent — 2026-11-19 新增(A2A v1.0 / 注册面对齐)
+    // ============================================================
+
+    /**
+     * 把本 agent 注册进 WAU registry。
+     *
+     * <p>★ 2026-11-19 新增:Java SDK 之前**没有**注册方法
+     * (只有 wau-store 语义的 {@link #getAgent})。
+     *
+     * <p><b>authToken</b> 是**调用凭证** —— kernel 取候选时需要它拼
+     * {@code Authorization} 头去调边缘 agent
+     * (registry 的注册 = 整卡覆盖写,不带 token 就没有 token)。
+     *
+     * @param name        agent 名(全局唯一)
+     * @param url         kernel 能 POST 的端点根路径
+     * @param skills      能力标签
+     * @param universes   universe 标签(非安全边界,只是路由分组)
+     * @param authToken   调用凭证(可空)
+     */
+    public void registerAgent(String name, String url, java.util.List<String> skills,
+                               java.util.List<String> universes, String authToken) {
+        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(url, "url must not be null");
+        Map<String, Object> body = new java.util.LinkedHashMap<>();
+        body.put("name", name);
+        body.put("url", url);
+        body.put("skills", skills == null ? java.util.List.of() : skills);
+        body.put("universes", universes == null ? java.util.List.of() : universes);
+        if (authToken != null && !authToken.isEmpty()) {
+            body.put("auth_token", authToken);
+        }
+        http.postJson(cfg.wauEdgeUrl() + "/registry/agents/register", baseHeaders(), body, Void.class);
+    }
+
+    // ============================================================
     // 4. sampleLLM — M3 W3 (cost-aware Thompson Sampling)
     // ============================================================
 
@@ -274,12 +309,66 @@ public final class WauClient {
 
     private Map<String, String> baseHeaders() {
         Map<String, String> h = new HashMap<>();
-        h.put("X-WAU-Client", "wau-java-sdk/0.1.0-preview");
+        h.put("X-WAU-Client", "wau-java-sdk/1.4.0");
         if (cfg.botToken() != null) {
             h.put("Authorization", "Bearer " + cfg.botToken());
         }
         return h;
     }
+
+    // ============================================================
+    // IntentService(2026-11-19 实装)
+    //   - kernel 的 /v1/intent/parse + /v1/intent/score
+    //   - 通过 intent() getter 暴露,避免单仓改动面扩散
+    // ============================================================
+
+    /**
+     * Intent client —— intent 解析 + agent 评分。
+     *
+     * <p>★ 2026-11-19:Java SDK 之前**完全没有** intent 服务。
+     * kernel 的 {@code /v1/intent/parse} + {@code /v1/intent/score} 早已可用
+     * (2026-11-19 对着生产服务器实测确认),现在补上。
+     *
+     * <p>例:
+     * <pre>{@code
+     *   var entry = client.intent().parseIntent("帮我查血糖趋势");
+     *   var scores = client.intent().scoreAgents(List.of("hermes-shop01"), null, null, null, null);
+     * }</pre>
+     */
+    public io.wau.sdk.intent.IntentService intent() {
+        if (intent == null) {
+            intent = new io.wau.sdk.intent.IntentService(http, cfg.wauEdgeUrl(), baseHeaders());
+        }
+        return intent;
+    }
+
+    private io.wau.sdk.intent.IntentService intent;
+
+    // ============================================================
+    // A2AClient(2026-11-19 实装)
+    //   - kernel 的 /v1/intent/* 之外的 A2A v1.0 面
+    // ============================================================
+
+    /**
+     * A2A v1.0 client —— 调外部 agent。
+     *
+     * <p>★ 2026-11-19:5 个 SDK 之前都没有 A2A 客户端。kernel 已经在用
+     * A2A v1.0 调外部 agent 了(ZeroClaw / Hermes / 边缘 agent)
+     * ⇒ SDK 侧要能直连 A2A 才能自己组网。
+     *
+     * <p>例:
+     * <pre>{@code
+     *   String reply = client.a2a().sendText("http://10.0.0.1:9901/", "你好", token, "");
+     * }</pre>
+     */
+    public io.wau.sdk.a2a.A2AClient a2a() {
+        if (a2a == null) {
+            a2a = new io.wau.sdk.a2a.A2AClient(http, cfg.wauEdgeUrl(), baseHeaders());
+        }
+        return a2a;
+    }
+
+    private io.wau.sdk.a2a.A2AClient a2a;
 
     /** X-WAU-Bot + X-WAU-User + X-WAU-Owner 3 header(per D78+D80). */
     private Map<String, String> botHeaders(String userId, Long ownerUserId) {

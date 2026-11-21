@@ -133,7 +133,7 @@ public final class L5Service {
 
     private Map<String, String> baseHeaders() {
         Map<String, String> h = new HashMap<>();
-        h.put("X-WAU-Client", "wau-java-sdk/0.2.0-preview");
+        h.put("X-WAU-Client", "wau-java-sdk/1.4.0");
         if (cfg.botToken() != null) {
             h.put("Authorization", "Bearer " + cfg.botToken());
         }

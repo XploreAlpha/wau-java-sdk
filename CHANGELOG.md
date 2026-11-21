@@ -14,6 +14,28 @@ but the **JSON-RPC envelope + wire format MUST match**.
 
 ---
 
+## [v1.4.0] - 2026-11-19 — "Opal" — ★ intent 实装 + A2A v1.0 客户端
+
+### Fixed
+
+- **★ User-Agent 里的版本号 stale**(跟 SDK 版本对不上)
+  - Java SDK 的 `X-WAU-Client` 头写死 `wau-java-sdk/0.1.0-preview`(L5Service 里还是 `0.2.0-preview`)
+    ⇒ 全部对齐到 **1.4.0**。
+
+### Added
+
+- **★ `IntentService` —— 全新(Java SDK 之前**完全没有** intent 服务)**
+  - 实装 kernel 的 `POST /v1/intent/parse` + `POST /v1/intent/score`(实测确认可用)。
+  - `parseIntent` / `scoreAgents` / `healthCheck`。
+  - ⚠️ `/v1/intent/score` 的 score 元素用 **Go 字段名**;解析时两套拼写都认。
+
+- **★ `A2AClient` —— A2A v1.0 客户端(全新)**
+  - 线格式(实测):方法名 `SendMessage` + **每次必带 `A2A-Version: 1.0` 头** + 可选 Bearer token。
+  - `sendMessage` 返回原始 JSON-RPC result;`sendText` 直接返回文本
+    (覆盖 task 分支 / message 分支 / legacy v0.3.0 三种形状)。
+
+- `WauClient.registerAgent(...)` —— 注册进 WAU registry,支持携带 `auth_token` 调用凭证。
+
 ## [v1.3.4] - 2026-08-14 — "OSS onboarding (README + CONTRIBUTING + LICENSE + version bump)"
 
 ### Added
